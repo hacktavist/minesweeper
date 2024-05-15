@@ -59,14 +59,20 @@ def print_board(display):
         print(f"{row_num:02d}| " + ' '.join(str(x) for x in row))
         row_num += 1
 
-def reveal(board, display, row, col):
+def reveal(board, display, row, col, revealed=None):
+    if revealed is None:
+        revealed = set()
+
     if display[row][col] == "-":
         display[row][col] = board[row][col]
+        revealed.add((row,col))
         if board[row][col] == 0:
             for neighbor_row in range(max(0, row - 1), min(len(board), row + 2)):
                 for neighbor_col in range(max(0, col - 1), min(len(board), col + 2)):
-                    if board[neighbor_row][neighbor_col] != "M":
-                        reveal(board, display, neighbor_row, neighbor_col)
+                    if board[neighbor_row][neighbor_col] != "M" and (neighbor_row, neighbor_col) not in revealed:
+                        reveal(board, display, neighbor_row, neighbor_col, revealed)
+
+    return revealed
 
 def game_setup():
     options = ["3x3", "10x10", "25x25"]
@@ -101,19 +107,27 @@ def play_game(size = 10, mines = 15):
         print_board(display)
         print("\nType 'exit' to quit\n")
         row, col = get_move(size)
-        reveal(board, display, row, col)
+        newly_revealed = reveal(board, display, row, col)
+        #reveal(board, display, row, col)
         print("\033[H\033[2J", end="") # ANSI Escape Codes: https://stackoverflow.com/a/50560686
         print_board(display)
         if (row, col) in pos:
+            #print("\033[H\033[2J", end="") # ANSI Escape Codes: https://stackoverflow.com/a/50560686v
+            #print_board(display)
             print("You suck!")
+            print("Mine Hit!")
             break
         else:
-            used.add((row, col))
+            #newly_revealed = reveal(board, display, row, col)
+            used.update(newly_revealed)
 
-    if len(used) == possible_moves:
-        print("Mines Cleared!")
-    else:
-        print("Mine Hit!")
+        if len(used) == possible_moves:
+            print("\033[H\033[2J", end="") # ANSI Escape Codes: https://stackoverflow.com/a/50560686
+            print_board(board)
+            print("Mines Cleared!")
+
+        #print("\033[H\033[2J", end="") # ANSI Escape Codes: https://stackoverflow.com/a/50560686
+        #print_board(display)
 
 if __name__ == "__main__":
     play_game()
