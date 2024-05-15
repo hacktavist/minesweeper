@@ -22,18 +22,18 @@ def create_board(grid_size,num_mines):
 def get_move(grid_size):
     while True:
         move_str = input("Choose coordinates to uncover (ex a5) - ").strip()
-        print("Type 'exit' to quit\n")
+        #print("Type 'exit' to quit\n")
         if move_str.lower() == "exit":
             print("\033[H\033[2J", end="") # ANSI Escape Codes: https://stackoverflow.com/a/50560686 
             sys.exit()
-        if len(move_str) != 2:
-            print("Invalid input. Enter exactly 2 characters.")
+        if len(move_str) < 2:
+            print("Invalid input. Enter 2 characters or more.")
             continue
 
-        col, row = move_str[0], move_str[1]
+        col, row = move_str[0], move_str[1:]
 
         if not col.isalpha() or not row.isdigit():
-            print("Invalid input. First character should be a letter and second a digit.")
+            print("Invalid input. First character should be a letter and the rest should be digits.")
             continue
 
         col_index = ord(col.lower()) - ord('a')
